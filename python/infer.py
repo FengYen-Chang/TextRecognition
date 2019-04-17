@@ -4,6 +4,7 @@ import argparse
 
 from openvino.inference_engine import IENetwork, IEPlugin
 
+import decoder
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 def parsing():
@@ -23,7 +24,8 @@ def main() :
              'm', 'n', 'o', 'p', 'q', 'r', 
              's', 't', 'u', 'v', 'w', 'x', 
              'y', 'z', '0', '1', '2', '3', 
-             '4', '5', '6', '7', '8', '9']    
+             '4', '5', '6', '7', '8', '9', 
+             '-']    
 
     args = parsing().parse_args()
 
@@ -35,7 +37,7 @@ def main() :
 
     iter_inputs = iter(net.inputs)
     iter_outputs = iter(net.outputs)
-    
+   
     # inputs_num = len(net.inputs)
     # print (inputs_num)
 
@@ -67,6 +69,7 @@ def main() :
         input = np.ones(shape=net.inputs[input_blob].shape, dtype = np.float32)
     else :
         b, c, h, w = net.inputs[input_blob].shape
+        print (b, c, h, w)
         import cv2
         input = cv2.imread(args.input)
         print (input.shape)
@@ -75,16 +78,20 @@ def main() :
 
     plugin = IEPlugin(device = 'CPU')
     exec_net = plugin.load(network = net)
-    if args.cpu_extension :
-        plugin.add_cpu_extension(args.cpu_extension)
+    # if args.cpu_extension :
+    #    plugin.add_cpu_extension(args.cpu_extension)
     # res = plugin.impl.CTCGreedyDecoder();
 
-    inputs = {input_blob: input}
+    
+
+    inputs = {input_blob: np.concatenate(input, 0)}
     out = exec_net.infer(inputs)
 
     # print (out)
     
-    # print (out[output_blob])
+    print (decoder.CTCGreedyDecoder(out[output_blob], words, words[-1]))
+    ''' 
+    print (out[output_blob].shape)
     
     sum_ = np.sum(np.exp(out[output_blob]), 2)
     # print (sum_.shape)
@@ -116,7 +123,8 @@ def main() :
             output_str += words[i]
 
     print (output_str)
-    # print (out[output_blob].shape)
-
+    print (out[output_blob].shape)
+    '''
+    
 if "__main__" :
     main()
