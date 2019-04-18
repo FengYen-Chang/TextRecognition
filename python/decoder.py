@@ -1,11 +1,14 @@
-###########################################
+################################################
 # 
 #   Create and Implement  by John Feng
 #   
 #   Data :   
 #       2019/04/17:       
 #       Implement the CTC Greedy Decoder 
+#       2019/04/18:
+#       Implement the CTC Beam Search Decoder
 #
+################################################
 
 import numpy as np
 
@@ -53,13 +56,33 @@ def CTCBeamSearchDecoder(input_tensor, text_label, blank, bandwidth) :
     pred = pred.squeeze() # (t, 1, l) -> (t, l)
         
     t_step = pred.shape[0]
+    idx_b = text_label.find(blank)
 
-    p_b = 1
+    _pB = {}
+    _pNB = {}
+    _pT = {}
+    
+    for __t in ['c', 'l'] :
+        _pB[__t] = {}
+        _pNB[__t] = {}
+        _pT[__t] = {}
+        for _l in range(len(text_label) - 1) :
+            _pB[__t][_l] = 0
+            _pNB[__t][_l] = 0
+            _pT[__t][_l] = 0
 
     for i in range(t_step):
         bestBeam = __bestBeam(pred[i], bandwidth)
         
-    
+        for _b in bestBeam :
+            _pNB = 0
+            
+            if _b != idx_b :
+               _pNB['c'][_b] += _pNB['l'][y] * pred[i][_b]
+            
+            _pB['c'][_b] += _pT['l'][y] * pred[i][idx_b]
+            
+            for k in 
 
 
 
