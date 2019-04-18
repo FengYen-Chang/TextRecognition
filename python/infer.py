@@ -35,6 +35,8 @@ def main() :
     net = IENetwork(model = model_graph, 
                     weights = model_weight)
 
+    # net.batch_size = 2
+
     iter_inputs = iter(net.inputs)
     iter_outputs = iter(net.outputs)
    
@@ -82,12 +84,13 @@ def main() :
     #    plugin.add_cpu_extension(args.cpu_extension)
     # res = plugin.impl.CTCGreedyDecoder();
 
-    
+    a =  np.concatenate((input, input), 0)
+    print (a.shape)    
 
-    inputs = {input_blob: np.concatenate(input, 0)}
+    inputs = {input_blob: input}
     out = exec_net.infer(inputs)
 
-    # print (out)
+    # print (out[output_blob])
     
     print (decoder.CTCGreedyDecoder(out[output_blob], words, words[-1]))
     ''' 

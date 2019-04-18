@@ -22,9 +22,13 @@ def softmax_layer(input_tensor) :
 def CTCGreedyDecoder(input_tensor, text_label, blank) :
     text = ''
     pred = softmax_layer(input_tensor)
+    
+    # print (pred.squeeze())    
 
     pos = np.argmax(pred, 2).squeeze() # (25, 1, 1) -> (25)   
     last_char = len(pos)
+
+    # print (pos)
 
     prev_blank = True
     for i, v in np.ndenumerate(pos) :
@@ -39,3 +43,38 @@ def CTCGreedyDecoder(input_tensor, text_label, blank) :
     return text
   
  
+def __bestBeam(beam, bandwidth) :
+    sorted_beam = sorted(enumerate(a), reverse=True, key=lambda x: x[1])
+    
+    return (sorted_beam[:bandwidth])
+
+def CTCBeamSearchDecoder(input_tensor, text_label, blank, bandwidth) :
+    pred = softmax_layer(input_tensor)
+    pred = pred.squeeze() # (t, 1, l) -> (t, l)
+        
+    t_step = pred.shape[0]
+
+    p_b = 1
+
+    for i in range(t_step):
+        bestBeam = __bestBeam(pred[i], bandwidth)
+        
+    
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
