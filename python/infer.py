@@ -94,7 +94,7 @@ def main() :
     
     print (decoder.CTCGreedyDecoder(out[output_blob], words, words[-1]))
     
-    print (decoder.CTCBeamSearchDecoder(out[output_blob], words, words[-1],5 ))
+    print (decoder.CTCBeamSearchDecoder(out[output_blob], words, words[-1], 50))
 
 
     ''' 

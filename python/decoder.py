@@ -74,9 +74,9 @@ def CTCBeamSearchDecoder(input_tensor, text_label, blank, bandwidth) :
     _pT['l'][_init] = 1
 
     for _t in range(t_step):
-        _pB['c'].clear()
-        _pNB['c'].clear()
-        _pT['c'].clear()
+        _pB['c'] = {}
+        _pNB['c'] = {}
+        _pT['c'] = {}
         
         if _t == 10000 :
             for _sorted  in __bestBeam(pred[_t], bandwidth):
@@ -86,45 +86,47 @@ def CTCBeamSearchDecoder(input_tensor, text_label, blank, bandwidth) :
                 _pT['l'][((_sorted[0],),)] = _sorted[1]
         else :
             for _candidate in _pNB['l']:
-                # print (_t)
                 _TpNB = 0
                 if _candidate != _init:
-                    # print (_t)
+                    # print (_candidate, _candidate[-1])
                     _TpNB = _pNB['l'][_candidate] * pred[_t][_candidate[-1]]
-                _TpB = _pT['l'][_candidate] * pred[_t][-1]
-                # print (_TpNB, _TpB)
-                _pNB['c'][_candidate] = _TpNB
+                _TpB = _pT['l'][_candidate] * pred[_t][idx_b]
+                # print (_candidate, _TpNB +  _TpB)
+                if _candidate in _pNB['c'] :
+                    _pNB['c'][_candidate] += _TpNB
+                else :
+                    _pNB['c'][_candidate] = _TpNB
                 _pB['c'][_candidate] = _TpB
-                _pT['c'][_candidate] = _TpB + _TpNB
+                _pT['c'][_candidate] = _pNB['c'][_candidate] + _pB['c'][_candidate]
+                # print (_pT['c'][_candidate])
 
                 for i, v in np.ndenumerate(pred[_t]) :
-                    if i != (idx_b,) :
+                    if i < (idx_b,) :
                         extand_t = _candidate + (i,)
-                        if len(_candidate) > 0 and _candidate[-1] == (i):
+                        if len(_candidate) > 0 and _candidate[-1] == i:
                             _TpNB = v * _pB['l'][_candidate]
     
                         else :
                             _TpNB = v * _pT['l'][_candidate]
-                            
-                        if extand_t in _pT['c'].keys():
-                            _pB['c'][extand_t] = 0
+           
+                        if extand_t in _pT['c'] :
                             _pT['c'][extand_t] += _TpNB
                             _pNB['c'][extand_t] += _TpNB
-            
                         else :
                             _pB['c'][extand_t] = 0
                             _pT['c'][extand_t] = _TpNB
                             _pNB['c'][extand_t] = _TpNB
             
             sorted_c = sorted(_pT['c'].items(), reverse=True, key=lambda item:item[1])
-            _pB['l'].clear()
-            _pNB['l'].clear()
-            _pT['l'].clear()
+            _pB['l'] = {}
+            _pNB['l'] = {}
+            _pT['l'] = {}
             for _sent in sorted_c[:bandwidth] :
+                # print (_sent)
                 _pB['l'][_sent[0]] = _pB['c'][_sent[0]]
                 _pNB['l'][_sent[0]] = _pNB['c'][_sent[0]]
                 _pT['l'][_sent[0]] = _pT['c'][_sent[0]]
-
+            # print ("ddddddddss")
 
     res = sorted(_pT['l'].items(), reverse=True, key=lambda item:item[1])[0]
     # print (res[0])       
