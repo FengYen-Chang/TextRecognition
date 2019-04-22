@@ -112,6 +112,9 @@ include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+include_directories(src) 
+FILE(GLOB_RECURSE sourcefiles "src/*.cpp")
+
 if (UNIX)
     SET(LIB_DL dl)
 endif()
@@ -147,5 +150,5 @@ LINK_LIBRARIES(${OpenCV_LIBRARIES}
 # message(STATUS ${OpenCV_INCLUDE_DIRS})
 # message(STATUS "qq")
 
-add_executable(text_recognition ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp )
+add_executable(text_recognition ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${sourcefiles})
 

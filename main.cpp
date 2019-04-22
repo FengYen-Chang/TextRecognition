@@ -28,7 +28,7 @@
 #include "hetero/hetero_plugin_config.hpp"
 
 #include "src/argparse.h"
-// #include "src/decoder.h"
+#include "src/decoder.h"
 
 using namespace InferenceEngine;
 using namespace std;
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     
     cv::Mat image = cv::imread(FLAGS_i);
     cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
-    cv::resize(image, image, cv::Size(inputW, inputW));
+    cv::resize(image, image, cv::Size(inputH, inputW));
     
     auto input_data = input->buffer().as<PrecisionTrait<Precision::U8>::value_type*>();
     
@@ -127,13 +127,22 @@ int main(int argc, char *argv[])
     infer_request.Infer();
 
     auto output = infer_request.GetBlob(output_name);
-    auto output_data = output->buffer().as<PrecisionTrait<Precision::FP32>::value_type*>();
+    auto output_data_point = output->buffer().as<PrecisionTrait<Precision::FP32>::value_type*>();
    
-    std::cout << output_data << std::endl;
+    const SizeVector output_shape = output->getTensorDesc().getDims();
     
+    std::vector<float> output_data(output_data_point, output_data_point + output_shape[0] * output_shape[1] * output_shape[2]);
+
+    std::cout << output_shape[0] * output_shape[1] * output_shape[2] << "\n";
+    std::cout << output_data[0] << std::endl;
+
     std::cout << "Decode by CTC Greedy Decoder: \n";
-    // auto res_greedy =  CTCGreedyDecoder(output_data, _words, _blank, &conf);
-    // std::cout << res_greedy << "\n";
+    auto res_greedy = CTCGreedyDecoder(output_data, _words, _blank, (int)(output_shape[0]));
+    std::cout << res_greedy << "\n";
+
+    std::cout << "Decode by Beam Search Decoder: \n";
+    auto res_beam = CTCBeamSearchDecoder(output_data, _words, _blank, (int)(output_shape[0]), 5);
+    std::cout << res_beam << "\n";
  
     return 0;
 }
