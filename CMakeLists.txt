@@ -103,20 +103,13 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 # Properties->C/C++->General->Additional Include Directories
 include_directories (
-    # ${CMAKE_CURRENT_SOURCE_DIR}/common/format_reader
     ${InferenceEngine_INCLUDE_DIRS}
     ${InferenceEngine_INCLUDE_DIRS}/../samples/common
     ${InferenceEngine_INCLUDE_DIRS}/../samples/common/format_reader
     ${InferenceEngine_INCLUDE_DIRS}/../samples/common/samples
-    ${InferenceEngine_INCLUDE_DIRS}/../samples/build/thirdparty/gflags/include
     # ${InferenceEngine_INCLUDE_DIRS}/../samples/build/thirdparty/gflags/include/gflags
-    # /usr/include/gflags
+    /home/john-server/inference_engine_samples_build/thirdparty/gflags/include/
     ${CMAKE_CURRENT_SOURCE_DIR}
-    # ${InferenceEngine_INCLUDE_DIRS}/../samples/extension/
-    # ${OpenCV_INCLUDE_DIRS}
-    # ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/gflags/include
-    # ${CMAKE_CURRENT_SOURCE_DIR}/common
-    # ..${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 if (UNIX)
@@ -137,12 +130,12 @@ if(OpenCV_FOUND)
 endif()
 
 # important part
-link_directories(${InferenceEngine_INCLUDE_DIRS}/../samples/build/intel64/Release/lib)
+link_directories(/home/john-server/inference_engine_samples_build/intel64/Release/lib)
 
 LINK_LIBRARIES(${OpenCV_LIBRARIES}
                ${InferenceEngine_LIBRARIES}
-                # format_reader
-            #    gflags
+               # format_reader
+               # gflags
                gflags_nothreads
             #    ${LIB_DL}
             # dl 
